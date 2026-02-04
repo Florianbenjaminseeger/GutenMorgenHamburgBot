@@ -4,12 +4,17 @@ import datetime
 import requests
 import google.generativeai as genai
 from dotenv import load_dotenv
+from keep_alive import start_keep_alive  # Import keep_alive
+
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
 from calendar_utils import get_todays_events
 
 # Load environment variables
 load_dotenv()
+
+# Start keep-alive server for Render
+start_keep_alive()
 
 # Configure Gemini
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
