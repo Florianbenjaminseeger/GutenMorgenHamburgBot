@@ -152,12 +152,12 @@ async def get_ai_love_message():
         prompt = (
             "Schreibe eine kurze, liebevolle Guten-Morgen-Nachricht an meine Freundin. "
             "WICHTIG: Schreibe aus MEINER Perspektive (Ich-Form). "
-            "Erwähne NIEMALS, dass du eine KI, ein Bot oder ein Programm bist. "
-            "Es darf nicht wie ein Test klingen. "
-            "Der Ton soll romantisch, persönlich und warmherzig sein. "
-            "Wünsche ihr einen wunderschönen Tag und sag ihr, dass ich an sie denke. "
-            "Nutze ein paar Emojis, aber nicht zu viele. "
-            "Antworte als reinen Text. Keine Formatierung."
+            "INHALT: Mischung aus Liebe und Motivation für den Tag. "
+            "Vermeide Kitsch, sei authentisch. "
+            "VERBOTEN: Platzhalter wie '[Dein Name]', '[Datum]' oder ähnliches. Nutze keine Platzhalter! "
+            "Unterschreibe NICHT oder nur mit 'Dein Schatz'. "
+            "Erwähne NIEMALS, dass du eine KI bist. "
+            "Antworte als reinen Text."
         )
         response = model.generate_content(prompt)
         

@@ -33,10 +33,15 @@ def get_todays_events(email, password, timezone="Europe/Berlin"):
         today_date = now.date()
         
         # Search window: Today 00:00 to 23:59 Local Time
-        search_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-        search_end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+        # Widen slightly to catch timezone edge cases for all-day events
+        search_start = now.replace(hour=0, minute=0, second=0, microsecond=0) - datetime.timedelta(hours=2)
+        search_end = now.replace(hour=23, minute=59, second=59, microsecond=999999) + datetime.timedelta(hours=2)
 
         events_found = []
+        
+        # Debug: Check which calendars we see
+        cal_names = [cal.name for cal in calendars] if calendars else []
+        logging.info(f"Found calendars: {cal_names}")
 
         for calendar in calendars:
             try:
@@ -88,6 +93,9 @@ def get_todays_events(email, password, timezone="Europe/Berlin"):
                 continue
 
         if not events_found:
+             # Add debug hint if no events found but calendars exist
+            if not calendars:
+                return "Debug: Keine Kalender gefunden. Prüfe Account-Daten."
             return "Heute stehen keine Termine im Kalender."
             
         # Deduplicate results
