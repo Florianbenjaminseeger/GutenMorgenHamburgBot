@@ -9,7 +9,7 @@ from keep_alive import start_keep_alive  # Import keep_alive
 
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
-from calendar_utils import get_todays_events
+from calendar_utils import get_todays_events, list_available_calendars
 
 # Load environment variables
 load_dotenv()
@@ -196,6 +196,38 @@ async def id_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parse_mode="Markdown"
     )
 
+async def debug_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Debugs calendar connection by listing all available calendars."""
+    chat_id = update.effective_chat.id
+    msg = await context.bot.send_message(chat_id=chat_id, text="🔍 Untersuche Kalender-Verbindungen...")
+    
+    email = os.getenv('ICLOUD_EMAIL')
+    password = os.getenv('ICLOUD_PASSWORD')
+    
+    if not email or not password:
+        await context.bot.edit_message_text(
+            chat_id=chat_id, 
+            message_id=msg.message_id, 
+            text="❌ Fehler: Keine iCloud-Zugangsdaten in .env gefunden."
+        )
+        return
+
+    calendars = list_available_calendars(email, password)
+    
+    cal_list_str = "\n".join([f"- {c}" for c in calendars])
+    report = (
+        f"✅ **Gefundene Kalender ({len(calendars)}):**\n\n"
+        f"{cal_list_str}\n\n"
+        f"Wenn 'Geburtstage' hier fehlt, wird er über die API nicht übertragen."
+    )
+    
+    await context.bot.edit_message_text(
+        chat_id=chat_id, 
+        message_id=msg.message_id, 
+        text=report,
+        parse_mode="Markdown"
+    )
+
 if __name__ == '__main__':
     token = os.getenv('TELEGRAM_BOT_TOKEN')
     if not token:
@@ -226,6 +258,7 @@ if __name__ == '__main__':
     briefing_handler = CommandHandler('briefing', briefing_command)
     id_handler = CommandHandler('id', id_command)
     love_handler = CommandHandler('love', love_command)
+    debug_handler = CommandHandler('debug', debug_command)
     
     # Replaces Echo with AI
     ai_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), handle_ai_message)
@@ -235,6 +268,7 @@ if __name__ == '__main__':
     application.add_handler(briefing_handler)
     application.add_handler(id_handler)
     application.add_handler(love_handler)
+    application.add_handler(debug_handler)
     application.add_handler(ai_handler)
     
     print("Bot is successfully running...")

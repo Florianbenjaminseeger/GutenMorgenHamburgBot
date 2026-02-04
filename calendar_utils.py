@@ -106,3 +106,30 @@ def get_todays_events(email, password, timezone="Europe/Berlin"):
     except Exception as e:
         logging.error(f"CalDAV error: {e}")
         return f"Fehler beim Abrufen des Kalenders: {str(e)}"
+
+def list_available_calendars(email, password):
+    """
+    Returns a list of names of all available calendars.
+    """
+    try:
+        caldav_url = "https://caldav.icloud.com"
+        client = caldav.DAVClient(
+            url=caldav_url,
+            username=email,
+            password=password
+        )
+        principal = client.principal()
+        try:
+            calendars = principal.calendars()
+        except Exception as e:
+            logging.error(f"Could not fetch calendars: {e}")
+            return ["⚠️ Fehler: Konnte Kalender-Liste nicht abrufen."]
+            
+        if not calendars:
+            return ["⚠️ Keine Kalender gefunden."]
+
+        return [cal.name for cal in calendars]
+        
+    except Exception as e:
+        logging.error(f"List calendars error: {e}")
+        return [f"⚠️ Kritischer Fehler: {str(e)}"]
