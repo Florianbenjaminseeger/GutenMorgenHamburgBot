@@ -1,4 +1,5 @@
 import os
+import re
 import logging
 import datetime
 import requests
@@ -155,10 +156,20 @@ async def get_ai_love_message():
             "Es darf nicht wie ein Test klingen. "
             "Der Ton soll romantisch, persönlich und warmherzig sein. "
             "Wünsche ihr einen wunderschönen Tag und sag ihr, dass ich an sie denke. "
-            "Nutze ein paar Emojis, aber nicht zu viele."
+            "Nutze ein paar Emojis, aber nicht zu viele. "
+            "Antworte als reinen Text. Keine Formatierung."
         )
         response = model.generate_content(prompt)
-        return response.text
+        
+        # Cleanup: Remove any HTML-like tags (including blockquote) and quotes
+        text = response.text
+        # Remove HTML tags
+        clean_text = re.sub(r'<[^>]+>', '', text).strip()
+        # Remove surrounding quotes if present
+        if clean_text.startswith('"') and clean_text.endswith('"'):
+            clean_text = clean_text[1:-1]
+            
+        return clean_text
     except Exception as e:
         logging.error(f"Love message error: {e}")
         return "Guten Morgen mein Schatz! ❤️ Ich liebe dich über alles!"
